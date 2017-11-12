@@ -1,10 +1,33 @@
 import Vector2D = Phaser.Point;
 
+
+////////////////////////////////////////////////////////////////////////////////
+// LightProperties
+//
+// Handles all things related to light/emissiveness
+////////////////////////////////////////////////////////////////////////////////
+class LightProperties {
+
+    constructor() {
+
+    }
+
+    // True if this describes a lit/emissive object
+    casts_light : boolean;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Actor
+//
+// Base class for all entities in the game
+////////////////////////////////////////////////////////////////////////////////
 class Actor {
     constructor(tile_coord: Vector2D, game: Phaser.Game, asset_name: string) {
-        // this.id = Actor.CURRENT_ID++;
+        this.id = Actor.CURRENT_ID++;
         this.tile_coord = tile_coord;
         this.game = game;
+        this.speed = 1; // Default actor speed
 
         this.sprite = this.game.add.sprite(tile_coord.x * 48, tile_coord.y * 48, asset_name);
 
@@ -19,17 +42,37 @@ class Actor {
 
     // Actor's health, if any
     health: number;
+    speed: number;
 
-    update() {
+    tick() {
         // Do nothing by default
     }
 
-    moveTo(tile_coord: Vector2D) {
+    teleport(tile_coord: Vector2D) {
         // TODO: Check to see if this tile is empty
         this.tile_coord = tile_coord;
+        this.sprite.position.x = this.tile_coord.x * 48;
+        this.sprite.position.y = this.tile_coord.y * 48;
+    }
+
+    up() {
+        this.move(0, -this.speed);
+    }
+
+    down() {
+        this.move(0, this.speed);
+    }
+
+    left() {
+        this.move(-this.speed, 0);
+    }
+
+    right() {
+        this.move(this.speed, 0);
     }
 
     move(x: number, y: number) {
+        // TODO: Fail if any spaces along this path is occluded
         this.tile_coord.add(x, y);
         this.sprite.position.x = this.tile_coord.x * 48;
         this.sprite.position.y = this.tile_coord.y * 48;
@@ -40,17 +83,32 @@ class Actor {
         delete Actor.ACTORS[this.id];
     }
 
+
+
     // STATIC VARIABLES AND METHODS
     // -------------------------------------------------------------------------
     static CURRENT_ID: number = 0;
     static ACTORS: {[key: number]: Actor} = {};
 
     // Static list of actors in the scene
-    GetActors() {
+    static GetActors() {
         return Actor.ACTORS;
+    }
+
+    static GlobalTick() {
+        const actors = Actor.GetActors();
+        for (let key in actors) {
+            actors[key].tick();
+        }
     }
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Player
+//
+// Handles all things related to light/emissiveness
+////////////////////////////////////////////////////////////////////////////////
 class Player extends Actor {
 
     constructor(position: Vector2D, game: Phaser.Game) {
@@ -103,6 +161,46 @@ class UI {
 }
 
 
+class Monster extends Actor {
+    constructor(position: Vector2D, game: Phaser.Game, asset_name: string) {
+        super(position, game, asset_name)
+    }
+    
+    down() {}
+} 
+
+class Ghoul extends Monster {
+    constructor(position: Vector2D, game: Phaser.Game) {
+        super(position, game, 'ghoul');
+        this.sprite.animations.add('down', [0,1,2,3], 4, true);
+        this.sprite.animations.add('right', [4,5,6,7], 4, true);
+        this.sprite.animations.add('up', [8,9,10,11], 4, true);
+        this.sprite.animations.add('left', [12,13,14,15], 4, true);
+    }
+    
+    down() {
+        this.sprite.animations.play('down');
+        this.game.add.tween(this.sprite).to({ y: this.game.height }, 10000, Phaser.Easing.Linear.None, true);
+    }
+    right() {
+        this.sprite.animations.play('right');
+        this.game.add.tween(this.sprite).to({ x: this.game.width }, 10000, Phaser.Easing.Linear.None, true);
+    }
+    up() {
+        this.sprite.animations.play('up');
+        this.game.add.tween(this.sprite).to({ y: this.game.height }, -10000, Phaser.Easing.Linear.None, true);
+    }
+    left() {
+        this.sprite.animations.play('left');
+        this.game.add.tween(this.sprite).to({ x: this.game.width }, -10000, Phaser.Easing.Linear.None, true);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// SimpleGame
+//
+// Main game logic
+////////////////////////////////////////////////////////////////////////////////
 class SimpleGame {
 
     constructor() {
@@ -121,14 +219,23 @@ class SimpleGame {
         );
     }
 
+    baddies : Array<number>;
     game: Phaser.Game;
     map: Phaser.Tilemap;
     groundLayer: Phaser.TilemapLayer;
     cursors: Phaser.CursorKeys;
-    bm: Phaser.Sprite;
     ui: UI;
+    monsters: Array<Monster>;
+
+    // Keys
+    left_key: Phaser.Key;
+    right_key: Phaser.Key;
+    up_key: Phaser.Key;
+    down_key: Phaser.Key;
 
     player: Player;
+
+    time_since_last_tick : number;
 
     preload() {
         // Load the level. Down the line we'll want to replace this with a procedural step
@@ -138,7 +245,7 @@ class SimpleGame {
         this.game.load.image('tile', 'assets/images/tile_sheets/basic_tiles.png');
 
         // Entities
-        this.game.load.spritesheet('blue_monster', 'assets/sprites/blue_monster.png', 48, 48, 4);
+        this.game.load.spritesheet('ghoul', 'assets/sprites/ghoul.png', 48, 48, 16);
         this.game.load.image('player', 'assets/images/test_entity.png');
 
     }
@@ -156,36 +263,46 @@ class SimpleGame {
 	this.groundLayer.resizeWorld();
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
-        
-        this.bm = this.game.add.sprite(40, 40, 'blue_monster');
+        this.monsters = new Array<Monster>();
+        this.monsters.push(new Ghoul(new Phaser.Point(2, 2), this.game));
+        var ghoul_monster = this.monsters[0];
+        ghoul_monster.down();
 
-        this.bm.animations.add('walk');
+        // Register keys
+        this.left_key = this.game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+        this.right_key = this.game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+        this.up_key = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
+        this.down_key = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
 
-        this.bm.animations.play('walk', 4, true);
+        this.game.input.keyboard.addKeyCapture(
+            [
+                Phaser.Keyboard.LEFT,
+                Phaser.Keyboard.RIGHT,
+                Phaser.Keyboard.UP,
+                Phaser.Keyboard.DOWN
+            ]
+        );
 
-        this.game.add.tween(this.bm).to({ y: this.game.height }, 10000, Phaser.Easing.Linear.None, true);
+        // Keybindings!
+        this.left_key.onDown.add( () => this.player.left() );
+        this.right_key.onDown.add( () => this.player.right() );
+        this.up_key.onDown.add( () => this.player.up() );
+        this.down_key.onDown.add( () => this.player.down() );
 
         this.player = new Player( new Vector2D(0,0), this.game);
         this.ui = new UI(new Vector2D(300,20), this.game);
+        this.time_since_last_tick = this.game.time.now;
     }
 
     update() {
-        // Move the camera using the arrow keys
-        if (this.cursors.up.isDown) {
-            this.player.move(0, -0.1);
-        } else if (this.cursors.down.isDown) {
-            this.player.move(0, 0.1);
+        if (this.monsters[0].sprite.y >= 300) {
+            this.monsters[0].sprite.scale.x += 0.01;
+            this.monsters[0].sprite.scale.y += 0.01;
         }
 
-        if (this.cursors.left.isDown) {
-            this.player.move(-0.1, 0);
-        } else if (this.cursors.right.isDown) {
-            this.player.move(0.1, 0);
-        }
-        
-        if (this.bm.y >= 300) {
-            this.bm.scale.x += 0.01;
-            this.bm.scale.y += 0.01;
+        if (this.game.time.now - this.time_since_last_tick > 1000){
+            Actor.GlobalTick();
+            this.time_since_last_tick = this.game.time.now;
         }
     }
 
