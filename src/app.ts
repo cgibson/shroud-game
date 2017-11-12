@@ -27,6 +27,7 @@ class Actor {
         this.id = Actor.CURRENT_ID++;
         this.tile_coord = tile_coord;
         this.game = game;
+        this.speed = 1; // Default actor speed
 
         this.sprite = this.game.add.sprite(tile_coord.x * 48, tile_coord.y * 48, asset_name);
 
@@ -41,17 +42,37 @@ class Actor {
 
     // Actor's health, if any
     health: number;
+    speed: number;
 
     tick() {
         // Do nothing by default
     }
 
-    moveTo(tile_coord: Vector2D) {
+    teleport(tile_coord: Vector2D) {
         // TODO: Check to see if this tile is empty
         this.tile_coord = tile_coord;
+        this.sprite.position.x = this.tile_coord.x * 48;
+        this.sprite.position.y = this.tile_coord.y * 48;
+    }
+
+    up() {
+        this.move(0, -1);
+    }
+
+    down() {
+        this.move(0, 1);
+    }
+
+    left() {
+        this.move(-1, 0);
+    }
+
+    right() {
+        this.move(1, 0);
     }
 
     move(x: number, y: number) {
+        // TODO: Fail if any spaces along this path is occluded
         this.tile_coord.add(x, y);
         this.sprite.position.x = this.tile_coord.x * 48;
         this.sprite.position.y = this.tile_coord.y * 48;
