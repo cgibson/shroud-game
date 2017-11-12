@@ -127,8 +127,15 @@ class SimpleGame {
         // Render debug camera information to the screen
         this.game.debug.cameraInfo(this.game.camera, 32, 500);
     }
+
+    static SINGLETON: SimpleGame = null;
+    static GetInstance() {
+        if (SimpleGame.SINGLETON == null) {
+            SimpleGame.SINGLETON = new SimpleGame();
+        }
+    }
 }
 
 export function startGame() {
-    var game = new SimpleGame();
+    SimpleGame.GetInstance();
 }
