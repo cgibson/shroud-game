@@ -1,5 +1,27 @@
 import Vector2D = Phaser.Point;
 
+
+////////////////////////////////////////////////////////////////////////////////
+// LightProperties
+//
+// Handles all things related to light/emissiveness
+////////////////////////////////////////////////////////////////////////////////
+class LightProperties {
+
+    constructor() {
+
+    }
+
+    // True if this describes a lit/emissive object
+    casts_light : boolean;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Actor
+//
+// Base class for all entities in the game
+////////////////////////////////////////////////////////////////////////////////
 class Actor {
     constructor(tile_coord: Vector2D, game: Phaser.Game, asset_name: string) {
         // this.id = Actor.CURRENT_ID++;
@@ -40,6 +62,8 @@ class Actor {
         delete Actor.ACTORS[this.id];
     }
 
+
+
     // STATIC VARIABLES AND METHODS
     // -------------------------------------------------------------------------
     static CURRENT_ID: number = 0;
@@ -51,6 +75,12 @@ class Actor {
     }
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Player
+//
+// Handles all things related to light/emissiveness
+////////////////////////////////////////////////////////////////////////////////
 class Player extends Actor {
 
     constructor(position: Vector2D, game: Phaser.Game) {
@@ -93,6 +123,7 @@ class Ghoul extends Monster {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 // SimpleGame
 //
 // Main game logic
