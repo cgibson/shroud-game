@@ -23,8 +23,9 @@ class LightProperties {
 // Base class for all entities in the game
 ////////////////////////////////////////////////////////////////////////////////
 class Actor {
-    constructor(tile_coord: Vector2D, game: Phaser.Game, asset_name: string) {
+    constructor(tile_coord: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, asset_name: string) {
         this.id = Actor.CURRENT_ID++;
+        this.map = map;
         this.tile_coord = tile_coord;
         this.game = game;
         this.speed = 1; // Default actor speed
@@ -36,6 +37,7 @@ class Actor {
     }
 
     id: number;
+    map: Phaser.Tilemap
     tile_coord: Vector2D;
     game: Phaser.Game;
     sprite: Phaser.Sprite;
@@ -57,26 +59,36 @@ class Actor {
     }
 
     up() {
+        this.sprite.key = 'hero_up';
+        this.sprite.loadTexture(this.sprite.key, 0)
         this.move(0, -this.speed);
     }
 
     down() {
+        this.sprite.key = 'hero_down';
+        this.sprite.loadTexture(this.sprite.key, 0)
         this.move(0, this.speed);
     }
 
     left() {
+        this.sprite.key = 'hero_left';
+        this.sprite.loadTexture(this.sprite.key, 0)
         this.move(-this.speed, 0);
     }
 
     right() {
+        this.sprite.key = 'hero_right';
+        this.sprite.loadTexture(this.sprite.key, 0)
         this.move(this.speed, 0);
     }
 
     move(x: number, y: number) {
         // TODO: Fail if any spaces along this path is occluded
-        this.tile_coord.add(x, y);
-        this.sprite.position.x = this.tile_coord.x * 48;
-        this.sprite.position.y = this.tile_coord.y * 48;
+	if (this.map.getTile(this.tile_coord.x+x, this.tile_coord.y+y, 'Fence') == null) {
+	    this.tile_coord.add(x, y);
+	    this.sprite.position.x = this.tile_coord.x * 48;
+	    this.sprite.position.y = this.tile_coord.y * 48;
+	}
     }
 
     kill() {
@@ -112,8 +124,8 @@ class Actor {
 ////////////////////////////////////////////////////////////////////////////////
 class Player extends Actor {
 
-    constructor(position: Vector2D, game: Phaser.Game) {
-        super(position, game, 'player');
+    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap) {
+        super(position, game, map, 'hero_up');
     }
 }
 
@@ -190,8 +202,8 @@ class UI {
 // Monster
 ////////////////////////////////////////////////////////////////////////////////
 class Monster extends Actor {
-    constructor(position: Vector2D, game: Phaser.Game, asset_name: string) {
-        super(position, game, asset_name)
+    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, asset_name: string) {
+        super(position, game, map, asset_name)
     }
     update() {}
     go(direction: DirectionEnum) {
@@ -219,8 +231,8 @@ class Monster extends Actor {
 // Ghoul
 ////////////////////////////////////////////////////////////////////////////////
 class Ghoul extends Monster {
-    constructor(position: Vector2D, game: Phaser.Game) {
-        super(position, game, 'ghoul');
+    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap) {
+        super(position, game, map, 'ghoul');
         this.sprite.animations.add('down', [0,1,2,3], 4, true);
         this.sprite.animations.add('right', [4,5,6,7], 4, true);
         this.sprite.animations.add('up', [8,9,10,11], 4, true);
@@ -321,6 +333,7 @@ class SimpleGame {
     game: Phaser.Game;
     map: Phaser.Tilemap;
     groundLayer: Phaser.TilemapLayer;
+    obstacleLayer: Phaser.TilemapLayer;
     cursors: Phaser.CursorKeys;
     ui: UI;
     monsters: Array<Monster>;
@@ -344,7 +357,6 @@ class SimpleGame {
 
         // Entities
         this.game.load.spritesheet('ghoul', 'assets/sprites/ghoul.png', 48, 48, 16);
-        this.game.load.image('player', 'assets/images/test_entity.png');
         this.game.load.image('hero_down', 'assets/images/hero_down.png');
         this.game.load.image('hero_left', 'assets/images/hero_left.png');
         this.game.load.image('hero_right', 'assets/images/hero_right.png');
@@ -365,12 +377,13 @@ class SimpleGame {
 
         // Create the ground layer
 	this.groundLayer = this.map.createLayer('GroundLayer');
-	this.groundLayer = this.map.createLayer('Fence');
+	this.obstacleLayer = this.map.createLayer('Fence');
 	this.groundLayer.resizeWorld();
+	this.obstacleLayer.resizeWorld();
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.monsters = new Array<Monster>();
-        this.monsters.push(new Ghoul(new Phaser.Point(2, 2), this.game));
+        this.monsters.push(new Ghoul(new Phaser.Point(2, 2), this.game, this.map));
         var ghoul_monster = this.monsters[0];
 
         // Register keys
@@ -394,7 +407,7 @@ class SimpleGame {
         this.up_key.onDown.add( () => this.player.up() );
         this.down_key.onDown.add( () => this.player.down() );
 
-        this.player = new Player( new Vector2D(1,1), this.game);
+        this.player = new Player( new Vector2D(1,1), this.game, this.map);
         this.ui = new UI(new Vector2D(300,20), this.game);
         this.time_since_last_tick = this.game.time.now;
     }
