@@ -117,6 +117,7 @@ class Player extends Actor {
     }
 }
 
+
 enum DirectionEnum {
     DOWN,
     LEFT,
@@ -124,6 +125,9 @@ enum DirectionEnum {
     RIGHT
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Alert
+////////////////////////////////////////////////////////////////////////////////
 class Alert {
     constructor(coords: Vector2D, game: Phaser.Game) {
 	this.coords = coords;
@@ -134,10 +138,18 @@ class Alert {
     game: Phaser.Game;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// ImageTextAlert
+////////////////////////////////////////////////////////////////////////////////
 class ImageTextAlert extends Alert {
 
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// TextAlert
+////////////////////////////////////////////////////////////////////////////////
 class TextAlert extends Alert {
     constructor(coords: Vector2D, game: Phaser.Game, text: string) {
 	super(coords, game);
@@ -149,6 +161,10 @@ class TextAlert extends Alert {
     text_obj: Phaser.Text;
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// UI
+////////////////////////////////////////////////////////////////////////////////
 class UI {
     constructor(coord: Vector2D, game: Phaser.Game) {
         this.coord = coord;
@@ -169,6 +185,10 @@ class UI {
 }
 
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Monster
+////////////////////////////////////////////////////////////////////////////////
 class Monster extends Actor {
     constructor(position: Vector2D, game: Phaser.Game, asset_name: string) {
         super(position, game, asset_name)
@@ -193,6 +213,10 @@ class Monster extends Actor {
     }
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Ghoul
+////////////////////////////////////////////////////////////////////////////////
 class Ghoul extends Monster {
     constructor(position: Vector2D, game: Phaser.Game) {
         super(position, game, 'ghoul');
@@ -361,19 +385,6 @@ class SimpleGame {
     }
 
     update() {
-        // Move the camera using the arrow keys
-        if (this.cursors.up.isDown) {
-            this.player.move(0, -0.1);
-        } else if (this.cursors.down.isDown) {
-            this.player.move(0, 0.1);
-        }
-
-        if (this.cursors.left.isDown) {
-            this.player.move(-0.1, 0);
-        } else if (this.cursors.right.isDown) {
-            this.player.move(0.1, 0);
-        }
-
         if (this.game.time.now - this.time_since_last_tick > 1000){
             Actor.GlobalTick();
             this.time_since_last_tick = this.game.time.now;
