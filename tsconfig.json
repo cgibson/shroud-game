@@ -5,7 +5,8 @@
         "removeComments": true,
         "preserveConstEnums": true,
         "outFile": "build/app.js",
-        "sourceMap": true
+        "sourceMap": true,
+        "allowJs": true
     },
     "include": [
         "src/**/*.ts",
