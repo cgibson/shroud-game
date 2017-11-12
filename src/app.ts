@@ -173,6 +173,7 @@ class Monster extends Actor {
     constructor(position: Vector2D, game: Phaser.Game, asset_name: string) {
         super(position, game, asset_name)
     }
+    update() {}
     go(direction: DirectionEnum) {
         switch(direction) {
             case DirectionEnum.DOWN:
@@ -202,7 +203,7 @@ class Ghoul extends Monster {
         this.sprite.animations.add('left', [12,13,14,15], 4, true);
     }
     
-    previous_direction: DirectionEnum;
+    previous_direction = DirectionEnum.DOWN;
     direction_count = 0;
     scale = true;
     
@@ -210,27 +211,32 @@ class Ghoul extends Monster {
         this.sprite.animations.play('down');
         this.teleport(this.tile_coord.x, this.tile_coord.y+1)
         this.previous_direction = DirectionEnum.DOWN;
+        this.direction_count++;
     }
     right() {
         this.sprite.animations.play('right');
         this.teleport(this.tile_coord.x+1, this.tile_coord.y)
         this.previous_direction = DirectionEnum.RIGHT;
+        this.direction_count++;
     }
     up() {
         this.sprite.animations.play('up');
         this.teleport(this.tile_coord.x, this.tile_coord.y-1)
         this.previous_direction = DirectionEnum.UP;
+        this.direction_count++;
     }
     left() {
         this.sprite.animations.play('left');
         this.teleport(this.tile_coord.x-1, this.tile_coord.y)
         this.previous_direction = DirectionEnum.LEFT;
+        this.direction_count++;
     }
     
     tick() {
         if (this.direction_count < 3)
             this.go(this.previous_direction);
         else{
+            this.direction_count = -1;
             switch(this.previous_direction) {
                 case DirectionEnum.DOWN:
                     this.right();
@@ -247,16 +253,18 @@ class Ghoul extends Monster {
             }
             this.direction_count = 0;
         }
+    }
+    update() {
         if (this.scale) {
-            this.sprite.scale.x += 0.01;
-            this.sprite.scale.y += 0.01;
-            if (this.sprite.scale.x >= 1.5)
+            this.sprite.scale.x += 0.005;
+            this.sprite.scale.y += 0.005;
+            if (this.sprite.scale.x >= 1.2)
                 this.scale = false;
         }
         else {
-            this.sprite.scale.x -= 0.01;
-            this.sprite.scale.y -= 0.01;
-            if (this.sprite.scale.x <= 1.0)
+            this.sprite.scale.x -= 0.005;
+            this.sprite.scale.y -= 0.005;
+            if (this.sprite.scale.x <= 0.95)
                 this.scale = true;
         }
     }
@@ -332,7 +340,6 @@ class SimpleGame {
         this.monsters = new Array<Monster>();
         this.monsters.push(new Ghoul(new Phaser.Point(2, 2), this.game));
         var ghoul_monster = this.monsters[0];
-        //ghoul_monster.down();
 
         // Register keys
         this.left_key = this.game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
@@ -378,6 +385,9 @@ class SimpleGame {
             Actor.GlobalTick();
             this.time_since_last_tick = this.game.time.now;
         }
+        
+        this.monsters[0].update();
+
     }
 
     render() {
