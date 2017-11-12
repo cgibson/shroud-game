@@ -1,3 +1,4 @@
+import {AbstractGame} from "./interfaces"
 import {Actor} from "./actor";
 import {Player} from "./player";
 import {Battery} from "./items";
@@ -11,9 +12,10 @@ import Vector2D = Phaser.Point;
 //
 // Main game logic
 ////////////////////////////////////////////////////////////////////////////////
-class SimpleGame {
+class SimpleGame extends AbstractGame {
 
-    private constructor() {
+    constructor() {
+        super();
         // Construct the game object with a bunch of useful options
         this.game = new Phaser.Game(
             800,
@@ -31,6 +33,8 @@ class SimpleGame {
 
     game: Phaser.Game;
     map: Phaser.Tilemap;
+    private static map_singleton_ : Phaser.Tilemap;
+
     groundLayer: Phaser.TilemapLayer;
     obstacleLayer: Phaser.TilemapLayer;
     ui: UI;
@@ -70,6 +74,9 @@ class SimpleGame {
         // Create a new tilemap based on the loaded level
         this.map = this.game.add.tilemap('test_level');
 
+        // Ugly hack to allow us to access the map from anywhere
+        SimpleGame.map_singleton_ = this.map;
+
         // Add a tilemap image
         this.map.addTilesetImage('basic_tiles', 'tile');
 
@@ -80,11 +87,11 @@ class SimpleGame {
 
         // Create a test monster
         this.monsters = new Array<Monster>();
-        this.monsters.push(new Ghoul(new Phaser.Point(2, 2), this.game, this.map));
+        this.monsters.push(new Ghoul(new Phaser.Point(2, 2)));
         var ghoul_monster = this.monsters[0];
 
         // Create a battery
-        var battery = new Battery(new Vector2D(4, 4), this.game, this.map);
+        var battery = new Battery(new Vector2D(4, 4));
 
         // Register keys
         this.left_key = this.game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
@@ -107,7 +114,7 @@ class SimpleGame {
         this.up_key.onDown.add( () => this.player.up() );
         this.down_key.onDown.add( () => this.player.down() );
 
-        this.player = new Player( new Vector2D(1,1), this.game, this.map);
+        this.player = new Player( new Vector2D(1,1));
         this.ui = new UI(new Vector2D(300,20), this.game);
         this.time_since_last_tick = this.game.time.now;
     }
@@ -127,14 +134,15 @@ class SimpleGame {
         this.game.debug.cameraInfo(this.game.camera, 32, 500);
     }
 
-    static SINGLETON: SimpleGame = null;
-    static GetInstance() {
-        if (SimpleGame.SINGLETON == null) {
-            SimpleGame.SINGLETON = new SimpleGame();
-        }
+    getMap() {
+        return SimpleGame.map_singleton_;
+    }
+
+    getGame() {
+        return this.game;
     }
 }
 
 export function startGame() {
-    SimpleGame.GetInstance();
+    AbstractGame.Create(SimpleGame);
 }

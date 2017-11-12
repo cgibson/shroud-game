@@ -10,8 +10,8 @@ import Vector2D = Phaser.Point;
 ////////////////////////////////////////////////////////////////////////////////
 export class Player extends Actor {
 
-    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap) {
-        super(position, game, map, 'hero_up', ActorType.PLAYER);
+    constructor(position: Vector2D) {
+        super(position, 'hero_up', ActorType.PLAYER);
 
         this.lantern = new Lantern();
     }

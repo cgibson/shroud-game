@@ -14,8 +14,8 @@ export enum DirectionEnum {
 // Monster
 ////////////////////////////////////////////////////////////////////////////////
 export class Monster extends Actor {
-    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, asset_name: string) {
-        super(position, game, map, asset_name, ActorType.MONSTER)
+    constructor(position: Vector2D, asset_name: string) {
+        super(position, asset_name, ActorType.MONSTER)
     }
     update() {}
     go(direction: DirectionEnum) {
@@ -43,8 +43,8 @@ export class Monster extends Actor {
 // Ghoul
 ////////////////////////////////////////////////////////////////////////////////
 export class Ghoul extends Monster {
-    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap) {
-        super(position, game, map, 'ghoul');
+    constructor(position: Vector2D) {
+        super(position,'ghoul');
         this.sprite.animations.add('down', [0,1,2,3], 4, true);
         this.sprite.animations.add('right', [4,5,6,7], 4, true);
         this.sprite.animations.add('up', [8,9,10,11], 4, true);

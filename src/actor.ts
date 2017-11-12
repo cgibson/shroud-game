@@ -1,5 +1,5 @@
 import Vector2D = Phaser.Point;
-import {Lantern} from "./lantern"
+import {AbstractGame} from "./interfaces"
 
 
 export enum ActorType {
@@ -14,12 +14,12 @@ export enum ActorType {
 // Base class for all entities in the game
 ////////////////////////////////////////////////////////////////////////////////
 export class Actor {
-    constructor(tile_coord: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, asset_name: string, type: ActorType, collidable: boolean = true, health: number = 100, speed: number = 1) {
+    constructor(tile_coord: Vector2D, asset_name: string, type: ActorType, collidable: boolean = true, health: number = 100, speed: number = 1) {
         this.id = Actor.CURRENT_ID++;
         this.type = type;
-        this.map = map;
+        this.map = AbstractGame.GetInstance().getMap();
         this.tile_coord = tile_coord;
-        this.game = game;
+        this.game = AbstractGame.GetInstance().getGame();;
         this.health = health;
         this.max_health = health;
         this.speed = speed;

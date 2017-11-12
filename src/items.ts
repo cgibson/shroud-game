@@ -10,8 +10,8 @@ import Vector2D = Phaser.Point;
 ////////////////////////////////////////////////////////////////////////////////
 export class Item extends Actor {
 
-    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, asset_name: string) {
-        super(position, game, map, asset_name, ActorType.ITEM);
+    constructor(position: Vector2D, asset_name: string) {
+        super(position, asset_name, ActorType.ITEM);
         this.collidable = false;
     }
 
@@ -29,8 +29,8 @@ export class Item extends Actor {
 ////////////////////////////////////////////////////////////////////////////////
 export class Health extends Item {
 
-    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, amount = 25) {
-        super(position, game, map, "health");
+    constructor(position: Vector2D, amount = 25) {
+        super(position, "health");
         this.amount = 25;
     }
 
@@ -54,8 +54,8 @@ export class Health extends Item {
 ////////////////////////////////////////////////////////////////////////////////
 export class Battery extends Item {
 
-    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, amount = 25) {
-        super(position, game, map, "battery");
+    constructor(position: Vector2D, amount = 25) {
+        super(position, "battery");
         this.amount = 25;
     }
 
