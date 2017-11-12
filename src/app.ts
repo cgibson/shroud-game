@@ -13,7 +13,7 @@ import Vector2D = Phaser.Point;
 ////////////////////////////////////////////////////////////////////////////////
 class SimpleGame {
 
-    constructor() {
+    private constructor() {
         // Construct the game object with a bunch of useful options
         this.game = new Phaser.Game(
             800,
