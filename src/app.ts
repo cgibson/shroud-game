@@ -94,6 +94,9 @@ class Monster extends Actor {
     }
     
     down() {}
+    right() {}
+    up() {}
+    left() {}
 } 
 
 class Ghoul extends Monster {
