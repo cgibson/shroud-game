@@ -57,36 +57,48 @@ export class Actor {
         this.sprite.position.y = y * 48;
     }
 
-    up() {
+    up(): boolean {
         this.sprite.key = 'hero_up';
-        this.sprite.loadTexture(this.sprite.key, 0)
-        this.move(0, -this.speed);
+        this.sprite.loadTexture(this.sprite.key, 0);
+        return this.move(0, -this.speed);
     }
 
-    down() {
+    down(): boolean {
         this.sprite.key = 'hero_down';
-        this.sprite.loadTexture(this.sprite.key, 0)
-        this.move(0, this.speed);
+        this.sprite.loadTexture(this.sprite.key, 0);
+        return this.move(0, this.speed);
     }
 
-    left() {
+    left(): boolean {
         this.sprite.key = 'hero_left';
-        this.sprite.loadTexture(this.sprite.key, 0)
-        this.move(-this.speed, 0);
+        this.sprite.loadTexture(this.sprite.key, 0);
+        return this.move(-this.speed, 0);
     }
 
-    right() {
+    right(): boolean {
         this.sprite.key = 'hero_right';
-        this.sprite.loadTexture(this.sprite.key, 0)
-        this.move(this.speed, 0);
+        this.sprite.loadTexture(this.sprite.key, 0);
+        return this.move(this.speed, 0);
+    }
+    
+    collision_check(x: number, y: number): boolean {
+        if (this.map.getTile(this.tile_coord.x+x, this.tile_coord.y+y, 'Fence') != null) {
+            return true;
+        }
+        return false;
+    }
+    collision_check_vector(vector: Vector2D): boolean {
+        if (this.map.getTile(this.tile_coord.x+vector.x, this.tile_coord.y+vector.y, 'Fence') != null) {
+            return true;
+        }
+        return false;
     }
 
-    move(x: number, y: number) {
+    move(x: number, y: number): boolean {
         // Check to see if the tile is occluded
         // TODO: Fail if any spaces along this path is occluded
-        if (this.map.getTile(this.tile_coord.x+x, this.tile_coord.y+y, 'Fence') != null) {
-            return
-        }
+        if (this.collision_check(x, y))
+            return false;
 
         // TODO: If we can't move all the way due to collisions, stop early.
 
@@ -106,7 +118,7 @@ export class Actor {
                         this.attack(actor);
                     }
                 }
-                return;
+                return false;
             }
         }
 
@@ -123,6 +135,7 @@ export class Actor {
         this.tile_coord.add(x, y);
         this.sprite.position.x = this.tile_coord.x * 48;
         this.sprite.position.y = this.tile_coord.y * 48;
+        return true;
     }
 
     attack(actor: Actor) {

@@ -87,7 +87,7 @@ class SimpleGame extends AbstractGame {
 
         // Create a test monster
         this.monsters = new Array<Monster>();
-        this.monsters.push(new Ghoul(new Phaser.Point(2, 2)));
+        this.monsters.push(new Ghoul(new Phaser.Point(2, 3)));
         var ghoul_monster = this.monsters[0];
 
         // Create a battery
