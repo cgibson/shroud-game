@@ -313,6 +313,14 @@ class SimpleGame {
         // Entities
         this.game.load.spritesheet('ghoul', 'assets/sprites/ghoul.png', 48, 48, 16);
         this.game.load.image('player', 'assets/images/test_entity.png');
+        this.game.load.image('hero_down', 'assets/images/hero_down.png');
+        this.game.load.image('hero_left', 'assets/images/hero_left.png');
+        this.game.load.image('hero_right', 'assets/images/hero_right.png');
+        this.game.load.image('hero_up', 'assets/images/hero.png');
+        this.game.load.image('battery', 'assets/images/battery.png');
+        this.game.load.image('fuel', 'assets/images/fuel.png');
+        this.game.load.image('lamp', 'assets/images/lamp.png');
+
 
     }
 
@@ -355,7 +363,7 @@ class SimpleGame {
         this.up_key.onDown.add( () => this.player.up() );
         this.down_key.onDown.add( () => this.player.down() );
 
-        this.player = new Player( new Vector2D(0,0), this.game);
+        this.player = new Player( new Vector2D(1,1), this.game);
         this.ui = new UI(new Vector2D(300,20), this.game);
         this.time_since_last_tick = this.game.time.now;
     }
