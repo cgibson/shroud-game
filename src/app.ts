@@ -24,7 +24,7 @@ class LightProperties {
 ////////////////////////////////////////////////////////////////////////////////
 class Actor {
     constructor(tile_coord: Vector2D, game: Phaser.Game, asset_name: string) {
-        // this.id = Actor.CURRENT_ID++;
+        this.id = Actor.CURRENT_ID++;
         this.tile_coord = tile_coord;
         this.game = game;
 
@@ -42,7 +42,7 @@ class Actor {
     // Actor's health, if any
     health: number;
 
-    update() {
+    tick() {
         // Do nothing by default
     }
 
@@ -70,8 +70,15 @@ class Actor {
     static ACTORS: {[key: number]: Actor} = {};
 
     // Static list of actors in the scene
-    GetActors() {
+    static GetActors() {
         return Actor.ACTORS;
+    }
+
+    static GlobalTick() {
+        const actors = Actor.GetActors();
+        for (let key in actors) {
+            actors[key].tick();
+        }
     }
 }
 
@@ -149,6 +156,7 @@ class SimpleGame {
         );
     }
 
+    baddies : Array<number>;
     game: Phaser.Game;
     map: Phaser.Tilemap;
     groundLayer: Phaser.TilemapLayer;
@@ -156,6 +164,8 @@ class SimpleGame {
     monsters: Array<Monster>;
 
     player: Player;
+
+    time_since_last_tick : number;
 
     preload() {
         // Load the level. Down the line we'll want to replace this with a procedural step
@@ -189,6 +199,8 @@ class SimpleGame {
         ghoul_monster.down();
 
         this.player = new Player( new Vector2D(0,0), this.game);
+
+        this.time_since_last_tick = this.game.time.now;
     }
 
     update() {
@@ -208,6 +220,11 @@ class SimpleGame {
         if (this.monsters[0].sprite.y >= 300) {
             this.monsters[0].sprite.scale.x += 0.01;
             this.monsters[0].sprite.scale.y += 0.01;
+        }
+
+        if (this.game.time.now - this.time_since_last_tick > 1000){
+            Actor.GlobalTick();
+            this.time_since_last_tick = this.game.time.now;
         }
     }
 
