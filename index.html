@@ -1,8 +1,13 @@
 <html>
     <head>
         <title></title>
-        <script src="./build/app.js"></script>
         <script src="./lib/phaser-ce/build/phaser.js"></script>
+        <script src="./lib/systemjs/dist/system.src.js"></script>
+        <script>
+            SystemJS.import('./build/app.js').then(function (m) {
+              m.startGame();
+            });
+        </script>
     </head>
     <body>
         <div id="content"></div>
