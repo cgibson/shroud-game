@@ -29,7 +29,6 @@ class SimpleGame {
         );
     }
 
-    baddies : Array<number>;
     game: Phaser.Game;
     map: Phaser.Tilemap;
     groundLayer: Phaser.TilemapLayer;
