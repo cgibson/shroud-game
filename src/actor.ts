@@ -1,13 +1,22 @@
 import Vector2D = Phaser.Point;
 import {Lantern} from "./lantern"
+
+
+export enum ActorType {
+    ITEM,
+    MONSTER,
+    PLAYER
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 // Actor
 //
 // Base class for all entities in the game
 ////////////////////////////////////////////////////////////////////////////////
 export class Actor {
-    constructor(tile_coord: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, asset_name: string, collidable: boolean = true, health: number = 100, speed: number = 1) {
+    constructor(tile_coord: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, asset_name: string, type: ActorType, collidable: boolean = true, health: number = 100, speed: number = 1) {
         this.id = Actor.CURRENT_ID++;
+        this.type = type;
         this.map = map;
         this.tile_coord = tile_coord;
         this.game = game;
@@ -23,6 +32,7 @@ export class Actor {
     }
 
     id: number;
+    type: ActorType;
     map: Phaser.Tilemap
     tile_coord: Vector2D;
     game: Phaser.Game;
@@ -90,9 +100,9 @@ export class Actor {
             const actor = actors[key];
             if (actor.collidable) {
                 // If it's a monster and we're a human... ATTAAACK
-                if (actor instanceof Monster) {
+                if (actor.type == ActorType.MONSTER) {
                     // Monsters don't kill monsters
-                    if (this instanceof Player) {
+                    if (this.type == ActorType.PLAYER) {
                         this.attack(actor);
                     }
                 }
@@ -104,7 +114,7 @@ export class Actor {
         for (let key in actors) {
             // If the actor is collidable, only interact with the first one and bail out
             const actor = actors[key];
-            if (actor instanceof Item) {
+            if (actor.type == ActorType.ITEM) {
                 this.pickUp(actor);
             }
         }
@@ -120,8 +130,8 @@ export class Actor {
     }
 
     pickUp(actor: Actor) {
-        if (actor instanceof Item) {
-            (<Item> actor).onPickup(this);
+        if (actor.type == ActorType.ITEM) {
+            actor.onPickup(this);
         } else {
             console.log("I don't think you want to pick that up...");
         }
@@ -184,79 +194,7 @@ export class Actor {
         }
         return actors_at_point;
     }
-}
 
-
-////////////////////////////////////////////////////////////////////////////////
-// Items
-//
-// Entities that can be picked up by the player
-////////////////////////////////////////////////////////////////////////////////
-export class Item extends Actor {
-
-    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, asset_name: string) {
-        super(position, game, map, asset_name);
-        this.collidable = false;
-    }
-
-    // Called when the item is picked up
+    // A couple of hanging events
     onPickup(actor: Actor) {}
-
-    // May not be useful right now, but if we add the ability to "use" items,
-    // have an onUse() event
-    onUse(actor: Actor) {}
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Player
-//
-// Handles all things related to light/emissiveness
-////////////////////////////////////////////////////////////////////////////////
-export class Player extends Actor {
-
-    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap) {
-        super(position, game, map, 'hero_up');
-
-        this.lantern = new Lantern();
-    }
-
-    lantern: Lantern;
-}
-
-
-export enum DirectionEnum {
-    DOWN,
-    LEFT,
-    UP,
-    RIGHT
-};
-
-
-////////////////////////////////////////////////////////////////////////////////
-// Monster
-////////////////////////////////////////////////////////////////////////////////
-export class Monster extends Actor {
-    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, asset_name: string) {
-        super(position, game, map, asset_name)
-    }
-    update() {}
-    go(direction: DirectionEnum) {
-        switch(direction) {
-            case DirectionEnum.DOWN:
-                this.down();
-                break;
-            case DirectionEnum.LEFT:
-                this.left();
-                break;
-            case DirectionEnum.UP:
-                this.up();
-                break;
-            case DirectionEnum.RIGHT:
-                this.right();
-                break;
-            default:
-                //AAAAAAHH!!
-        }
-    }
 }

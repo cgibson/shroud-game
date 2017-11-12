@@ -1,7 +1,8 @@
-import {Actor, Monster, Player} from "./actor";
+import {Actor} from "./actor";
+import {Player} from "./player";
 import {Battery} from "./items";
 import {UI} from "./ui";
-import {Ghoul} from "./monsters";
+import {Monster, Ghoul} from "./monsters";
 import Vector2D = Phaser.Point;
 
 

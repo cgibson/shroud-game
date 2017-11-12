@@ -1,5 +1,42 @@
-import {Monster, DirectionEnum} from "./actor";
+import {Actor, ActorType} from "./actor";
 import Vector2D = Phaser.Point;
+
+
+export enum DirectionEnum {
+    DOWN,
+    LEFT,
+    UP,
+    RIGHT
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Monster
+////////////////////////////////////////////////////////////////////////////////
+export class Monster extends Actor {
+    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, asset_name: string) {
+        super(position, game, map, asset_name, ActorType.MONSTER)
+    }
+    update() {}
+    go(direction: DirectionEnum) {
+        switch(direction) {
+            case DirectionEnum.DOWN:
+                this.down();
+                break;
+            case DirectionEnum.LEFT:
+                this.left();
+                break;
+            case DirectionEnum.UP:
+                this.up();
+                break;
+            case DirectionEnum.RIGHT:
+                this.right();
+                break;
+            default:
+                //AAAAAAHH!!
+        }
+    }
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -1,7 +1,32 @@
-import {Actor, Player, Item} from "./actor";
+import {Actor, ActorType} from "./actor";
+import {Player} from "./player";
 import Vector2D = Phaser.Point;
 
 
+////////////////////////////////////////////////////////////////////////////////
+// Items
+//
+// Entities that can be picked up by the player
+////////////////////////////////////////////////////////////////////////////////
+export class Item extends Actor {
+
+    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, asset_name: string) {
+        super(position, game, map, asset_name, ActorType.ITEM);
+        this.collidable = false;
+    }
+
+    // Called when the item is picked up
+    onPickup(actor: Actor) {}
+
+    // May not be useful right now, but if we add the ability to "use" items,
+    // have an onUse() event
+    onUse(actor: Actor) {}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Health
+////////////////////////////////////////////////////////////////////////////////
 export class Health extends Item {
 
     constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, amount = 25) {
@@ -24,6 +49,9 @@ export class Health extends Item {
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
+// Battery
+////////////////////////////////////////////////////////////////////////////////
 export class Battery extends Item {
 
     constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, amount = 25) {
