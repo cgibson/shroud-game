@@ -50,6 +50,8 @@ class SimpleGame extends AbstractGame {
 
     time_since_last_tick : number;
 
+    music: Phaser.Sound;
+
     preload() {
         // Load the level. Down the line we'll want to replace this with a procedural step
         this.game.load.tilemap('test_level', 'assets/levels/first_room.json', null, Phaser.Tilemap.TILED_JSON);
@@ -66,6 +68,9 @@ class SimpleGame extends AbstractGame {
         this.game.load.image('battery', 'assets/images/battery.png');
         this.game.load.image('fuel', 'assets/images/fuel.png');
         this.game.load.image('lamp', 'assets/images/lamp.png');
+
+        // Music
+        this.game.load.audio('spooky_ambient', 'assets/audio/spooky_ambient.mp3');
 
 
     }
@@ -117,6 +122,14 @@ class SimpleGame extends AbstractGame {
         this.player = new Player( new Vector2D(1,1));
         this.ui = new UI(new Vector2D(300,20), this.game);
         this.time_since_last_tick = this.game.time.now;
+
+        // Music!
+        this.music = this.game.add.audio('spooky_ambient');
+        this.game.sound.setDecodedCallback([this.music], () => this.music.loopFull(), this);
+    }
+
+    audioDecode() {
+        this.music.loopFull(0.6);
     }
 
     update() {
