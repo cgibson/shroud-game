@@ -86,10 +86,10 @@ class SimpleGame {
 
     preload() {
         // Load the level. Down the line we'll want to replace this with a procedural step
-        this.game.load.tilemap('test_level', 'assets/tiles/test_level.json', null, Phaser.Tilemap.TILED_JSON);
+        this.game.load.tilemap('test_level', 'assets/levels/first_room.json', null, Phaser.Tilemap.TILED_JSON);
 
         // This is the simplest tileset. Just one default tile
-        this.game.load.image('tile', 'assets/images/tileset.png');
+        this.game.load.image('tile', 'assets/images/tile_sheets/basic_tiles.png');
 
         // Entities
         this.game.load.spritesheet('blue_monster', 'assets/sprites/blue_monster.png', 48, 48, 4);
@@ -102,10 +102,11 @@ class SimpleGame {
         this.map = this.game.add.tilemap('test_level');
 
         // Add a tilemap image
-        this.map.addTilesetImage('default', 'tile');
+        this.map.addTilesetImage('basic_tiles', 'tile');
 
         // Create the ground layer
         this.groundLayer = this.map.createLayer('GroundLayer');
+        this.groundLayer = this.map.createLayer('Fence');
         this.groundLayer.resizeWorld();
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
