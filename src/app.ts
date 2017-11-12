@@ -93,6 +93,10 @@ class Ghoul extends Monster {
     }
 }
 
+// SimpleGame
+//
+// Main game logic
+////////////////////////////////////////////////////////////////////////////////
 class SimpleGame {
 
     constructor() {
