@@ -58,6 +58,41 @@ class Player extends Actor {
     }
 }
 
+class Monster extends Actor {
+    constructor(position: Vector2D, game: Phaser.Game, asset_name: string) {
+        super(position, game, asset_name)
+    }
+    
+    down() {}
+} 
+
+class Ghoul extends Monster {
+    constructor(position: Vector2D, game: Phaser.Game) {
+        super(position, game, 'ghoul');
+        this.sprite.animations.add('down', [0,1,2,3], 4, true);
+        this.sprite.animations.add('right', [4,5,6,7], 4, true);
+        this.sprite.animations.add('up', [8,9,10,11], 4, true);
+        this.sprite.animations.add('left', [12,13,14,15], 4, true);
+    }
+    
+    down() {
+        this.sprite.animations.play('down');
+        this.game.add.tween(this.sprite).to({ y: this.game.height }, 10000, Phaser.Easing.Linear.None, true);
+    }
+    right() {
+        this.sprite.animations.play('right');
+        this.game.add.tween(this.sprite).to({ x: this.game.width }, 10000, Phaser.Easing.Linear.None, true);
+    }
+    up() {
+        this.sprite.animations.play('up');
+        this.game.add.tween(this.sprite).to({ y: this.game.height }, -10000, Phaser.Easing.Linear.None, true);
+    }
+    left() {
+        this.sprite.animations.play('left');
+        this.game.add.tween(this.sprite).to({ x: this.game.width }, -10000, Phaser.Easing.Linear.None, true);
+    }
+}
+
 class SimpleGame {
 
     constructor() {
@@ -80,7 +115,7 @@ class SimpleGame {
     map: Phaser.Tilemap;
     groundLayer: Phaser.TilemapLayer;
     cursors: Phaser.CursorKeys;
-    bm: Phaser.Sprite;
+    monsters: Array<Monster>;
 
     player: Player;
 
@@ -92,7 +127,7 @@ class SimpleGame {
         this.game.load.image('tile', 'assets/images/tile_sheets/basic_tiles.png');
 
         // Entities
-        this.game.load.spritesheet('blue_monster', 'assets/sprites/blue_monster.png', 48, 48, 4);
+        this.game.load.spritesheet('ghoul', 'assets/sprites/ghoul.png', 48, 48, 16);
         this.game.load.image('player', 'assets/images/test_entity.png');
 
     }
@@ -110,14 +145,10 @@ class SimpleGame {
         this.groundLayer.resizeWorld();
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
-        
-        this.bm = this.game.add.sprite(40, 40, 'blue_monster');
-
-        this.bm.animations.add('walk');
-
-        this.bm.animations.play('walk', 4, true);
-
-        this.game.add.tween(this.bm).to({ y: this.game.height }, 10000, Phaser.Easing.Linear.None, true);
+        this.monsters = new Array<Monster>();
+        this.monsters.push(new Ghoul(new Phaser.Point(2, 2), this.game));
+        var ghoul_monster = this.monsters[0];
+        ghoul_monster.down();
 
         this.player = new Player( new Vector2D(0,0), this.game);
     }
@@ -136,9 +167,9 @@ class SimpleGame {
             this.player.move(0.1, 0);
         }
         
-        if (this.bm.y >= 300) {
-            this.bm.scale.x += 0.01;
-            this.bm.scale.y += 0.01;
+        if (this.monsters[0].sprite.y >= 300) {
+            this.monsters[0].sprite.scale.x += 0.01;
+            this.monsters[0].sprite.scale.y += 0.01;
         }
     }
 
