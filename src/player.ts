@@ -1,11 +1,20 @@
-// import { Actor } from "./actor";
-// import {Vector2D} from "./types";
+import {Actor} from "./actor";
+import {Lantern} from "./lantern";
+import Vector2D = Phaser.Point;
 
-// class Player extends Actor {
+
+////////////////////////////////////////////////////////////////////////////////
+// Player
 //
-//     constructor(position : Vector2D) {
-//         super(position);
-//     }
-//
-//
-// }
+// Handles all things related to light/emissiveness
+////////////////////////////////////////////////////////////////////////////////
+export class Player extends Actor {
+
+    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap) {
+        super(position, game, map, 'hero_up');
+
+        this.lantern = new Lantern();
+    }
+
+    lantern: Lantern;
+}

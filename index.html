@@ -3,10 +3,44 @@
         <title></title>
         <script src="./lib/phaser-ce/build/phaser.js"></script>
         <script src="./lib/systemjs/dist/system.src.js"></script>
+        <!--<script src="./build/actor.js"></script>-->
+        <script src="./build/bundle.js"></script>
         <script>
-            SystemJS.import('./build/app.js').then(function (m) {
-              m.startGame();
+
+            System.config({
+                baseURL: './build',
+////                paths: {
+////                    'build/*': 'build/*.js'
+////                },
+                packages: {
+                    'js': { defaultExtension: 'js' }
+                },
+//
+                bundles: {
+                    'bundle.js': ['actor','app','lantern','ui', 'monsters', 'items'],//'lantern','light','monsters','player',],
+                },
+//
+////                meta: {
+////                    'app': {
+////                        scriptLoad: true, // optional
+////                        format: 'register' // not recognized as register format otherwise
+////                    },
+////                    'actor': {
+////                        scriptLoad: true, // optional
+////                        format: 'register' // not recognized as register format otherwise
+////                    }
+////                }
             });
+//
+            SystemJS.import('app').then(
+                function (module) {
+                    console.log("SUCCESS!");
+                    module.startGame();
+                },
+                function (error) {
+                    console.log("ERROR: " + error);
+                }
+            );
         </script>
     </head>
     <body>

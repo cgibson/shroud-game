@@ -4,7 +4,7 @@
         "noImplicitAny": true,
         "removeComments": true,
         "preserveConstEnums": true,
-        "outFile": "build/app.js",
+        "outFile": "build/bundle.js",
         "sourceMap": true,
         "allowJs": true
     },

@@ -1,0 +1,60 @@
+import Vector2D = Phaser.Point;
+
+////////////////////////////////////////////////////////////////////////////////
+// Alert
+////////////////////////////////////////////////////////////////////////////////
+export class Alert {
+    constructor(coords: Vector2D, game: Phaser.Game) {
+	this.coords = coords;
+	this.game = game;
+    }
+
+    coords: Vector2D;
+    game: Phaser.Game;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// ImageTextAlert
+////////////////////////////////////////////////////////////////////////////////
+export class ImageTextAlert extends Alert {
+
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// TextAlert
+////////////////////////////////////////////////////////////////////////////////
+export class TextAlert extends Alert {
+    constructor(coords: Vector2D, game: Phaser.Game, text: string) {
+	super(coords, game);
+	this.text = text;
+	this.text_obj = this.game.add.text(this.coords.x, this.coords.y, this.text, {font: "20px Arial", fill:"x111"});
+    }
+
+    text: string;
+    text_obj: Phaser.Text;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// UI
+////////////////////////////////////////////////////////////////////////////////
+export class UI {
+    constructor(coord: Vector2D, game: Phaser.Game) {
+        this.coord = coord;
+        this.game = game;
+    }
+
+    coord: Vector2D;
+    game: Phaser.Game;
+    alert: Alert;
+
+    addTextAlert(text: string) {
+	this.alert = new TextAlert(this.coord, this.game, text);
+    }
+
+    addImageAlert() {
+
+    }
+}

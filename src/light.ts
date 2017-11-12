@@ -1,9 +1,14 @@
-// export class LightProperties {
+////////////////////////////////////////////////////////////////////////////////
+// LightProperties
 //
-//     constructor() {
-//
-//     }
-//
-//     // True if this describes a lit/emissive object
-//     casts_light : boolean;
-// }
+// Handles all things related to light/emissiveness
+////////////////////////////////////////////////////////////////////////////////
+class LightProperties {
+
+    constructor() {
+
+    }
+
+    // True if this describes a lit/emissive object
+    casts_light : boolean;
+}
