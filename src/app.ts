@@ -20,24 +20,17 @@ class Actor {
     // Actor's health, if any
     health: number;
 
-    // Whether or not the entity has the ability to cast light in the scene
-    // light: LightProperties;
-
     update() {
         // Do nothing by default
     }
-
-    // castsLight() {
-    //     return this.light.casts_light;
-    // }
 
     moveTo(tile_coord: Vector2D) {
         // TODO: Check to see if this tile is empty
         this.tile_coord = tile_coord;
     }
 
-    move(vector: Vector2D) {
-        this.tile_coord.add(vector.x, vector.y);
+    move(x: number, y: number) {
+        this.tile_coord.add(x, y);
         this.sprite.position.x = this.tile_coord.x * 48;
         this.sprite.position.y = this.tile_coord.y * 48;
     }
@@ -124,16 +117,15 @@ class SimpleGame {
     update() {
         // Move the camera using the arrow keys
         if (this.cursors.up.isDown) {
-            this.test_entity.move(new Vector2D(0. -1));
-            console.log("NOPE?");
+            this.test_entity.move(0, -0.1);
         } else if (this.cursors.down.isDown) {
-            this.test_entity.move(new Vector2D(0, 1));
+            this.test_entity.move(0, 0.1);
         }
 
         if (this.cursors.left.isDown) {
-            this.test_entity.move(new Vector2D(-1, 0));
+            this.test_entity.move(-0.1, 0);
         } else if (this.cursors.right.isDown) {
-            this.test_entity.move(new Vector2D(1, 0));
+            this.test_entity.move(0.1, 0);
         }
         
         if (this.bm.y >= 300) {
@@ -147,15 +139,6 @@ class SimpleGame {
         this.game.debug.cameraInfo(this.game.camera, 32, 500);
     }
 }
-
-// window.onload = () => {
-//     console.log("TESTING");
-//     // Create a new game on-load
-//     var game = new SimpleGame();
-//
-//     var vec = new Vector2D(1,2);
-//     console.log("TESTING " + vec.x + "," + vec.y);
-// };
 
 function startGame() {
     var game = new SimpleGame();
