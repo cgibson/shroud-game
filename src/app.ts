@@ -51,6 +51,13 @@ class Actor {
     }
 }
 
+class Player extends Actor {
+
+    constructor(position: Vector2D, game: Phaser.Game) {
+        super(position, game, 'player');
+    }
+}
+
 class SimpleGame {
 
     constructor() {
@@ -75,7 +82,7 @@ class SimpleGame {
     cursors: Phaser.CursorKeys;
     bm: Phaser.Sprite;
 
-    test_entity: Actor;
+    player: Player;
 
     preload() {
         // Load the level. Down the line we'll want to replace this with a procedural step
@@ -86,7 +93,7 @@ class SimpleGame {
 
         // Entities
         this.game.load.spritesheet('blue_monster', 'assets/sprites/blue_monster.png', 48, 48, 4);
-        this.game.load.image('test_entity', 'assets/images/test_entity.png');
+        this.game.load.image('player', 'assets/images/test_entity.png');
 
     }
 
@@ -111,21 +118,21 @@ class SimpleGame {
 
         this.game.add.tween(this.bm).to({ y: this.game.height }, 10000, Phaser.Easing.Linear.None, true);
 
-        this.test_entity = new Actor( new Vector2D(0,0), this.game, 'test_entity');
+        this.player = new Player( new Vector2D(0,0), this.game);
     }
 
     update() {
         // Move the camera using the arrow keys
         if (this.cursors.up.isDown) {
-            this.test_entity.move(0, -0.1);
+            this.player.move(0, -0.1);
         } else if (this.cursors.down.isDown) {
-            this.test_entity.move(0, 0.1);
+            this.player.move(0, 0.1);
         }
 
         if (this.cursors.left.isDown) {
-            this.test_entity.move(-0.1, 0);
+            this.player.move(-0.1, 0);
         } else if (this.cursors.right.isDown) {
-            this.test_entity.move(0.1, 0);
+            this.player.move(0.1, 0);
         }
         
         if (this.bm.y >= 300) {
