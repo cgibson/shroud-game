@@ -46,9 +46,12 @@ class Actor {
         // Do nothing by default
     }
 
-    moveTo(tile_coord: Vector2D) {
+    moveTo(x: number, y: number) {
         // TODO: Check to see if this tile is empty
-        this.tile_coord = tile_coord;
+        this.tile_coord.x = x;
+        this.tile_coord.y = y;
+        this.sprite.position.x = x * 48;
+        this.sprite.position.y = y * 48;
     }
 
     move(x: number, y: number) {
@@ -56,6 +59,11 @@ class Actor {
         this.sprite.position.x = this.tile_coord.x * 48;
         this.sprite.position.y = this.tile_coord.y * 48;
     }
+    
+    down() {}
+    right() {}
+    up() {}
+    left() {}
 
     kill() {
         this.sprite.kill();
@@ -95,16 +103,36 @@ class Player extends Actor {
     }
 }
 
+enum DirectionEnum {
+    DOWN,
+    LEFT,
+    UP,
+    RIGHT
+}
+
 class Monster extends Actor {
     constructor(position: Vector2D, game: Phaser.Game, asset_name: string) {
         super(position, game, asset_name)
     }
-    
-    down() {}
-    right() {}
-    up() {}
-    left() {}
-} 
+    go(direction: DirectionEnum) {
+        switch(direction) {
+            case DirectionEnum.DOWN:
+                this.down();
+                break;
+            case DirectionEnum.LEFT:
+                this.left();
+                break;
+            case DirectionEnum.UP:
+                this.up();
+                break;
+            case DirectionEnum.RIGHT:
+                this.right();
+                break;
+            default:
+                //AAAAAAHH!!
+        }
+    }
+}
 
 class Ghoul extends Monster {
     constructor(position: Vector2D, game: Phaser.Game) {
@@ -115,21 +143,63 @@ class Ghoul extends Monster {
         this.sprite.animations.add('left', [12,13,14,15], 4, true);
     }
     
+    previous_direction: DirectionEnum;
+    direction_count = 0;
+    scale = true;
+    
     down() {
         this.sprite.animations.play('down');
-        this.game.add.tween(this.sprite).to({ y: this.game.height }, 10000, Phaser.Easing.Linear.None, true);
+        this.moveTo(this.tile_coord.x, this.tile_coord.y+1)
+        this.previous_direction = DirectionEnum.DOWN;
     }
     right() {
         this.sprite.animations.play('right');
-        this.game.add.tween(this.sprite).to({ x: this.game.width }, 10000, Phaser.Easing.Linear.None, true);
+        this.moveTo(this.tile_coord.x+1, this.tile_coord.y)
+        this.previous_direction = DirectionEnum.RIGHT;
     }
     up() {
         this.sprite.animations.play('up');
-        this.game.add.tween(this.sprite).to({ y: this.game.height }, -10000, Phaser.Easing.Linear.None, true);
+        this.moveTo(this.tile_coord.x, this.tile_coord.y-1)
+        this.previous_direction = DirectionEnum.UP;
     }
     left() {
         this.sprite.animations.play('left');
-        this.game.add.tween(this.sprite).to({ x: this.game.width }, -10000, Phaser.Easing.Linear.None, true);
+        this.moveTo(this.tile_coord.x-1, this.tile_coord.y)
+        this.previous_direction = DirectionEnum.LEFT;
+    }
+    
+    tick() {
+        if (this.direction_count < 3)
+            this.go(this.previous_direction);
+        else{
+            switch(this.previous_direction) {
+                case DirectionEnum.DOWN:
+                    this.right();
+                    break;
+               case DirectionEnum.RIGHT:
+                    this.up();
+                    break;
+                case DirectionEnum.UP:
+                    this.left();
+                    break;
+                case DirectionEnum.LEFT:
+                    this.down();
+                    break;
+            }
+            this.direction_count = 0;
+        }
+        if (this.scale) {
+            this.sprite.scale.x += 0.01;
+            this.sprite.scale.y += 0.01;
+            if (this.sprite.scale.x >= 1.5)
+                this.scale = false;
+        }
+        else {
+            this.sprite.scale.x -= 0.01;
+            this.sprite.scale.y -= 0.01;
+            if (this.sprite.scale.x <= 1.0)
+                this.scale = true;
+        }
     }
 }
 
@@ -196,7 +266,7 @@ class SimpleGame {
         this.monsters = new Array<Monster>();
         this.monsters.push(new Ghoul(new Phaser.Point(2, 2), this.game));
         var ghoul_monster = this.monsters[0];
-        ghoul_monster.down();
+        //ghoul_monster.down();
 
         this.player = new Player( new Vector2D(0,0), this.game);
 
@@ -215,11 +285,6 @@ class SimpleGame {
             this.player.move(-0.1, 0);
         } else if (this.cursors.right.isDown) {
             this.player.move(0.1, 0);
-        }
-        
-        if (this.monsters[0].sprite.y >= 300) {
-            this.monsters[0].sprite.scale.x += 0.01;
-            this.monsters[0].sprite.scale.y += 0.01;
         }
 
         if (this.game.time.now - this.time_since_last_tick > 1000){
