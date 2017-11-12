@@ -23,12 +23,15 @@ class LightProperties {
 // Base class for all entities in the game
 ////////////////////////////////////////////////////////////////////////////////
 class Actor {
-    constructor(tile_coord: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, asset_name: string) {
+    constructor(tile_coord: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, asset_name: string, collidable: boolean = true, health: number = 100, speed: number = 1) {
         this.id = Actor.CURRENT_ID++;
         this.map = map;
         this.tile_coord = tile_coord;
         this.game = game;
-        this.speed = 1; // Default actor speed
+        this.health = health;
+        this.max_health = health;
+        this.speed = speed;
+        this.collidable = collidable;
 
         this.sprite = this.game.add.sprite(tile_coord.x * 48, tile_coord.y * 48, asset_name);
 
@@ -42,8 +45,11 @@ class Actor {
     game: Phaser.Game;
     sprite: Phaser.Sprite;
 
+    collidable: boolean;
+
     // Actor's health, if any
     health: number;
+    max_health: number;
     speed: number;
 
     tick() {
@@ -83,15 +89,83 @@ class Actor {
     }
 
     move(x: number, y: number) {
+        // Check to see if the tile is occluded
         // TODO: Fail if any spaces along this path is occluded
-	if (this.map.getTile(this.tile_coord.x+x, this.tile_coord.y+y, 'Fence') == null) {
-	    this.tile_coord.add(x, y);
-	    this.sprite.position.x = this.tile_coord.x * 48;
-	    this.sprite.position.y = this.tile_coord.y * 48;
-	}
+        if (this.map.getTile(this.tile_coord.x+x, this.tile_coord.y+y, 'Fence') != null) {
+            return
+        }
+
+        // TODO: If we can't move all the way due to collisions, stop early.
+
+        var actors = Actor.FindActorsAtPoint(this.tile_coord.x + x, this.tile_coord.y + y);
+
+        // Iterate through all actors. If there are monsters, attack the first one and don't
+        // move
+        var our_type = typeof(this);
+        for (let key in actors) {
+            // If the actor is collidable, only interact with the first one and bail out
+            const actor = actors[key];
+            if (actor.collidable) {
+                // If it's a monster and we're a human... ATTAAACK
+                if (actor instanceof Monster) {
+                    // Monsters don't kill monsters
+                    if (this instanceof Player) {
+                        this.attack(actor);
+                    }
+                }
+                return;
+            }
+        }
+
+        // Otherwise, iterate through all items and pick them up
+        for (let key in actors) {
+            // If the actor is collidable, only interact with the first one and bail out
+            const actor = actors[key];
+            if (actor instanceof Item) {
+                this.pickUp(actor);
+            }
+        }
+
+        // Finally, make the move. Nothing else has stopped us
+        this.tile_coord.add(x, y);
+        this.sprite.position.x = this.tile_coord.x * 48;
+        this.sprite.position.y = this.tile_coord.y * 48;
     }
 
+    attack(actor: Actor) {
+
+    }
+
+    pickUp(actor: Actor) {
+        if (actor instanceof Item) {
+            (<Item> actor).onPickup(this);
+        } else {
+            console.log("I don't think you want to pick that up...");
+        }
+    }
+
+    hurt(amount: number) {
+        this.health = Math.max(this.health - amount, 0.0);
+        if (this.isDead()) {
+            this.kill();
+        }
+    }
+
+    heal(amount: number) {
+        this.health = Math.min(this.health + amount, this.max_health);
+    }
+
+    isDead() {
+        return this.health <= 0.0;
+    }
+
+    // "Kills" the item, whatever that means in-game.
     kill() {
+        this.health = 0.0;
+    }
+
+    // Actually removes the item from the game
+    destroy() {
         this.sprite.kill();
         delete Actor.ACTORS[this.id];
     }
@@ -114,7 +188,86 @@ class Actor {
             actors[key].tick();
         }
     }
+
+    static FindActorsAtPoint(x: number, y: number) {
+        var actors_at_point = new Array<Actor>();
+
+        const actors = Actor.GetActors();
+        for (let key in actors) {
+            const actor = actors[key];
+            if ((actor.tile_coord.x == x) && (actor.tile_coord.y == y)) {
+                actors_at_point.push(actor);
+            }
+        }
+        return actors_at_point;
+    }
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Items
+//
+// Entities that can be picked up by the player
+////////////////////////////////////////////////////////////////////////////////
+class Item extends Actor {
+
+    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, asset_name: string) {
+        super(position, game, map, asset_name);
+        this.collidable = false;
+    }
+
+    // Called when the item is picked up
+    onPickup(actor: Actor) {}
+
+    // May not be useful right now, but if we add the ability to "use" items,
+    // have an onUse() event
+    onUse(actor: Actor) {}
+}
+
+
+class Health extends Item {
+
+    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, amount = 25) {
+        super(position, game, map, "health");
+        this.amount = 25;
+    }
+
+    amount: number;
+
+    onPickup(actor: Actor) {
+        if (!(actor instanceof Player)) {
+            console.log("Non-players shouldn't pick up health items!");
+            return;
+        }
+        const player = <Player> actor;
+
+        player.heal(this.amount);
+        this.destroy();
+    }
+}
+
+
+class Battery extends Item {
+
+    constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap, amount = 25) {
+        super(position, game, map, "battery");
+        this.amount = 25;
+    }
+
+    amount: number;
+
+    onPickup(actor: Actor) {
+        if (!(actor instanceof Player)) {
+            console.log("Non-players shouldn't pick up fuel items!");
+            return;
+        }
+        const player = <Player> actor;
+
+        player.lantern.addFuel(this.amount);
+        this.destroy();
+    }
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,6 +279,40 @@ class Player extends Actor {
 
     constructor(position: Vector2D, game: Phaser.Game, map: Phaser.Tilemap) {
         super(position, game, map, 'hero_up');
+
+        this.lantern = new Lantern();
+    }
+
+    lantern: Lantern;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Lantern
+//
+// Describes how the lantern behaves and how fuel affects its properties
+////////////////////////////////////////////////////////////////////////////////
+class Lantern {
+
+    constructor(amount: number = 100, loss_per_tick: number = 5) {
+        this.fuel = amount;
+        this.loss_per_tick = loss_per_tick;
+    }
+
+    fuel : number;
+
+    // How much fuel is expended per tick
+    loss_per_tick : number;
+
+    addFuel(added_fuel: number = 25) {
+        this.fuel += added_fuel;
+        console.log("Fuel now at " + this.fuel);
+
+    }
+
+    // This occurs once per tick, the amount expended is always the same
+    expendFuel() {
+        this.fuel = Math.max(this.fuel - this.loss_per_tick, 0.0);
     }
 }
 
@@ -334,7 +521,6 @@ class SimpleGame {
     map: Phaser.Tilemap;
     groundLayer: Phaser.TilemapLayer;
     obstacleLayer: Phaser.TilemapLayer;
-    cursors: Phaser.CursorKeys;
     ui: UI;
     monsters: Array<Monster>;
 
@@ -352,7 +538,7 @@ class SimpleGame {
         // Load the level. Down the line we'll want to replace this with a procedural step
         this.game.load.tilemap('test_level', 'assets/levels/first_room.json', null, Phaser.Tilemap.TILED_JSON);
 
-        // This is the simplest tileset. Just one default tile
+        // This is a sample tileset
         this.game.load.image('tile', 'assets/images/tile_sheets/basic_tiles.png');
 
         // Entities
@@ -370,21 +556,23 @@ class SimpleGame {
 
     create() {
         // Create a new tilemap based on the loaded level
-	this.map = this.game.add.tilemap('test_level');
+        this.map = this.game.add.tilemap('test_level');
 
         // Add a tilemap image
-	this.map.addTilesetImage('basic_tiles', 'tile');
+        this.map.addTilesetImage('basic_tiles', 'tile');
 
         // Create the ground layer
-	this.groundLayer = this.map.createLayer('GroundLayer');
-	this.obstacleLayer = this.map.createLayer('Fence');
-	this.groundLayer.resizeWorld();
-	this.obstacleLayer.resizeWorld();
+        this.groundLayer = this.map.createLayer('GroundLayer');
+        this.obstacleLayer = this.map.createLayer('Fence');
+        this.groundLayer.resizeWorld();
 
-        this.cursors = this.game.input.keyboard.createCursorKeys();
+        // Create a test monster
         this.monsters = new Array<Monster>();
         this.monsters.push(new Ghoul(new Phaser.Point(2, 2), this.game, this.map));
         var ghoul_monster = this.monsters[0];
+
+        // Create a battery
+        var battery = new Battery(new Vector2D(4, 4), this.game, this.map);
 
         // Register keys
         this.left_key = this.game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
