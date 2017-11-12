@@ -58,6 +58,51 @@ class Player extends Actor {
     }
 }
 
+class Alert {
+    constructor(coords: Vector2D, game: Phaser.Game) {
+	this.coords = coords;
+	this.game = game;
+    }
+
+    coords: Vector2D;
+    game: Phaser.Game;
+}
+
+class ImageTextAlert extends Alert {
+
+}
+
+class TextAlert extends Alert {
+    constructor(coords: Vector2D, game: Phaser.Game, text: string) {
+	super(coords, game);
+	this.text = text;
+	this.text_obj = this.game.add.text(this.coords.x, this.coords.y, this.text, {font: "20px Arial", fill:"x111"});
+    }
+
+    text: string;
+    text_obj: Phaser.Text;
+}
+
+class UI {
+    constructor(coord: Vector2D, game: Phaser.Game) {
+        this.coord = coord;
+        this.game = game;
+    }
+
+    coord: Vector2D;
+    game: Phaser.Game;
+    alert: Alert;
+
+    addTextAlert(text: string) {
+	this.alert = new TextAlert(this.coord, this.game, text);
+    }
+
+    addImageAlert() {
+
+    }
+}
+
+
 class SimpleGame {
 
     constructor() {
@@ -81,6 +126,7 @@ class SimpleGame {
     groundLayer: Phaser.TilemapLayer;
     cursors: Phaser.CursorKeys;
     bm: Phaser.Sprite;
+    ui: UI;
 
     player: Player;
 
@@ -99,15 +145,15 @@ class SimpleGame {
 
     create() {
         // Create a new tilemap based on the loaded level
-        this.map = this.game.add.tilemap('test_level');
+	this.map = this.game.add.tilemap('test_level');
 
         // Add a tilemap image
-        this.map.addTilesetImage('basic_tiles', 'tile');
+	this.map.addTilesetImage('basic_tiles', 'tile');
 
         // Create the ground layer
-        this.groundLayer = this.map.createLayer('GroundLayer');
-        this.groundLayer = this.map.createLayer('Fence');
-        this.groundLayer.resizeWorld();
+	this.groundLayer = this.map.createLayer('GroundLayer');
+	this.groundLayer = this.map.createLayer('Fence');
+	this.groundLayer.resizeWorld();
 
         this.cursors = this.game.input.keyboard.createCursorKeys();
         
@@ -120,6 +166,7 @@ class SimpleGame {
         this.game.add.tween(this.bm).to({ y: this.game.height }, 10000, Phaser.Easing.Linear.None, true);
 
         this.player = new Player( new Vector2D(0,0), this.game);
+        this.ui = new UI(new Vector2D(300,20), this.game);
     }
 
     update() {
