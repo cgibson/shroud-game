@@ -56,19 +56,19 @@ class Actor {
     }
 
     up() {
-        this.move(0, -1);
+        this.move(0, -this.speed);
     }
 
     down() {
-        this.move(0, 1);
+        this.move(0, this.speed);
     }
 
     left() {
-        this.move(-1, 0);
+        this.move(-this.speed, 0);
     }
 
     right() {
-        this.move(1, 0);
+        this.move(this.speed, 0);
     }
 
     move(x: number, y: number) {
