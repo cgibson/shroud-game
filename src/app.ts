@@ -181,6 +181,12 @@ class SimpleGame {
     cursors: Phaser.CursorKeys;
     monsters: Array<Monster>;
 
+    // Keys
+    left_key: Phaser.Key;
+    right_key: Phaser.Key;
+    up_key: Phaser.Key;
+    down_key: Phaser.Key;
+
     player: Player;
 
     time_since_last_tick : number;
@@ -218,23 +224,31 @@ class SimpleGame {
 
         this.player = new Player( new Vector2D(0,0), this.game);
 
+        // Register keys
+        this.left_key = this.game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+        this.right_key = this.game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+        this.up_key = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
+        this.down_key = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+
+        this.game.input.keyboard.addKeyCapture(
+            [
+                Phaser.Keyboard.LEFT,
+                Phaser.Keyboard.RIGHT,
+                Phaser.Keyboard.UP,
+                Phaser.Keyboard.DOWN
+            ]
+        );
+
+        // Keybindings!
+        this.left_key.onDown.add( () => this.player.left() );
+        this.right_key.onDown.add( () => this.player.right() );
+        this.up_key.onDown.add( () => this.player.up() );
+        this.down_key.onDown.add( () => this.player.down() );
+
         this.time_since_last_tick = this.game.time.now;
     }
 
     update() {
-        // Move the camera using the arrow keys
-        if (this.cursors.up.isDown) {
-            this.player.move(0, -0.1);
-        } else if (this.cursors.down.isDown) {
-            this.player.move(0, 0.1);
-        }
-
-        if (this.cursors.left.isDown) {
-            this.player.move(-0.1, 0);
-        } else if (this.cursors.right.isDown) {
-            this.player.move(0.1, 0);
-        }
-        
         if (this.monsters[0].sprite.y >= 300) {
             this.monsters[0].sprite.scale.x += 0.01;
             this.monsters[0].sprite.scale.y += 0.01;
