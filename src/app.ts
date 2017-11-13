@@ -55,6 +55,9 @@ class SimpleGame extends AbstractGame {
     music_01: Phaser.Sound;
     ambiance_01: Phaser.Sound;
 
+    musicTimer: number;
+    delay: number;
+
     light_cache: LightCache;
 
     preload() {
@@ -161,10 +164,12 @@ class SimpleGame extends AbstractGame {
         this.time_since_last_tick = this.game.time.now;
 
         // Music!
+        this.delay = 0;
+        this.musicTimer = 0;
         this.music_01 = this.game.add.audio('music_01');
         this.ambiance_01 = this.game.add.audio('ambiance_01');
         this.game.sound.setDecodedCallback([this.music_01, this.ambiance_01], () => {
-            this.playMusic(0);
+            //this.playMusic(0);
             //this.music_01.play();
             this.ambiance_01.loopFull();
         }, this);
@@ -172,6 +177,9 @@ class SimpleGame extends AbstractGame {
     }
 
     update() {
+
+        this.musicTimer += this.game.time.now - this.time_since_last_tick;
+
         if (this.game.time.now - this.time_since_last_tick > 1000){
             Actor.GlobalTick();
             this.light_cache.updateLightCache();
@@ -179,6 +187,20 @@ class SimpleGame extends AbstractGame {
         }
         
         this.monsters[0].update();
+
+        console.log("musicTimer = " + this.musicTimer);
+
+        
+
+        
+
+        if (this.musicTimer >= this.delay){
+            console.log("Play time");
+            this.music_01.play();
+            this.delay = (2400000 + Math.floor(Math.random() * 600000));
+            console.log("delay = " + this.delay);
+            this.musicTimer = 0;
+        }
 
     }
 
@@ -200,9 +222,13 @@ class SimpleGame extends AbstractGame {
     }
 
     playMusic(delay: number) {
-        setTimeout(this.music_01.play(), delay);
         delay = Math.floor(Math.random() * 60000) + 120000;
-        this.playMusic(delay);
+        if (this.musicTimer >= delay){
+            this.music_01.play();
+            this.musicTimer = 0;
+        }
+        
+        
     }
 }
 
