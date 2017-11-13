@@ -4,6 +4,7 @@ import {Player} from "./player";
 import {Battery} from "./items";
 import {UI} from "./ui";
 import {Monster, Ghoul} from "./monsters";
+import {LightCache} from "./light_cache";
 import Vector2D = Phaser.Point;
 
 
@@ -33,7 +34,7 @@ class SimpleGame extends AbstractGame {
 
     game: Phaser.Game;
     map: Phaser.Tilemap;
-    private static map_singleton_ : Phaser.Tilemap;
+    private static map_singleton_: Phaser.Tilemap;
 
     groundLayer: Phaser.TilemapLayer;
     obstacleLayer: Phaser.TilemapLayer;
@@ -47,11 +48,14 @@ class SimpleGame extends AbstractGame {
     down_key: Phaser.Key;
 
     player: Player;
+    private static player_singleton_: Player;
 
     time_since_last_tick : number;
 
     music_01: Phaser.Sound;
     ambiance_01: Phaser.Sound;
+
+    light_cache: LightCache;
 
     preload() {
         // Load the level. Down the line we'll want to replace this with a procedural step
@@ -59,6 +63,7 @@ class SimpleGame extends AbstractGame {
 
         // This is a sample tileset
         this.game.load.image('tile', 'assets/images/tile_sheets/basic_tiles.png');
+        this.game.load.image('light_tile', 'assets/images/black.png');
 
         // Entities
         this.game.load.spritesheet('ghoul', 'assets/sprites/ghoul.png', 48, 48, 16);
@@ -75,6 +80,10 @@ class SimpleGame extends AbstractGame {
         this.game.load.audio('ambiance_01', 'assets/audio/ambiance_01.wav');
         this.game.load.audio('music_01', 'assets/audio/music_01.wav');
 
+        // SFX
+        this.game.load.audio('player_footstep_01', 'assets/audio/player_footstep_01.wav');
+        this.game.load.audio('ghoul_loop', 'assets/audio/ghoul_loop.wav');
+        this.game.load.audio('pickup', 'assets/audio/pickup.wav');
 
     }
 
@@ -101,6 +110,8 @@ class SimpleGame extends AbstractGame {
         // Create a battery
         var battery = new Battery(new Vector2D(4, 4));
 
+        this.light_cache = new LightCache();
+
         // Register keys
         this.left_key = this.game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
         this.right_key = this.game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
@@ -117,12 +128,30 @@ class SimpleGame extends AbstractGame {
         );
 
         // Keybindings!
-        this.left_key.onDown.add( () => this.player.left() );
-        this.right_key.onDown.add( () => this.player.right() );
-        this.up_key.onDown.add( () => this.player.up() );
-        this.down_key.onDown.add( () => this.player.down() );
+        this.left_key.onDown.add( () => {
+            this.player.left();
+            this.light_cache.updateLightCache();
+        } );
+        this.right_key.onDown.add( () => {
+            this.player.right();
+            this.light_cache.updateLightCache();
+        } );
+        this.up_key.onDown.add( () => {
+            this.player.up();
+            this.light_cache.updateLightCache();
+        } );
+        this.down_key.onDown.add( () => {
+            this.player.down();
+            this.light_cache.updateLightCache();
+        } );
 
         this.player = new Player( new Vector2D(1,1));
+
+        this.game.camera.follow(this.player.sprite);
+
+        // Another horrible hack to make the player accessible via singleton
+        SimpleGame.player_singleton_ = this.player;
+
         this.ui = new UI(new Vector2D(300,20), this.game);
         this.time_since_last_tick = this.game.time.now;
 
@@ -133,11 +162,13 @@ class SimpleGame extends AbstractGame {
             this.music_01.play();
             this.ambiance_01.loopFull();
         }, this);
+        
     }
 
     update() {
         if (this.game.time.now - this.time_since_last_tick > 1000){
             Actor.GlobalTick();
+            this.light_cache.updateLightCache();
             this.time_since_last_tick = this.game.time.now;
         }
         
@@ -152,6 +183,10 @@ class SimpleGame extends AbstractGame {
 
     getMap() {
         return SimpleGame.map_singleton_;
+    }
+
+    getPlayer() {
+        return SimpleGame.player_singleton_;
     }
 
     getGame() {

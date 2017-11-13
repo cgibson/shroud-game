@@ -1,11 +1,13 @@
 import Vector2D = Phaser.Point;
 import {AbstractGame} from "./interfaces"
+import {LightProperties} from "./light_properties";
 
 
 export enum ActorType {
     ITEM,
     MONSTER,
-    PLAYER
+    PLAYER,
+    LIGHT_CACHE,
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -13,17 +15,18 @@ export enum ActorType {
 //
 // Base class for all entities in the game
 ////////////////////////////////////////////////////////////////////////////////
-export class Actor {
-    constructor(tile_coord: Vector2D, asset_name: string, type: ActorType, collidable: boolean = true, health: number = 100, speed: number = 1) {
+export abstract class Actor {
+    constructor(tile_coord: Vector2D, asset_name: string, type: ActorType, collidable: boolean = true, occludes: boolean = true, health: number = 100, speed: number = 1) {
         this.id = Actor.CURRENT_ID++;
         this.type = type;
         this.map = AbstractGame.GetInstance().getMap();
         this.tile_coord = tile_coord;
-        this.game = AbstractGame.GetInstance().getGame();;
+        this.game = AbstractGame.GetInstance().getGame();
         this.health = health;
         this.max_health = health;
         this.speed = speed;
         this.collidable = collidable;
+        this.occludes = occludes;
 
         this.sprite = this.game.add.sprite(tile_coord.x * 48, tile_coord.y * 48, asset_name);
 
@@ -39,11 +42,16 @@ export class Actor {
     sprite: Phaser.Sprite;
 
     collidable: boolean;
+    occludes: boolean;
 
     // Actor's health, if any
     health: number;
     max_health: number;
     speed: number;
+
+    getLightProperties(): LightProperties {
+        return null;
+    }
 
     tick() {
         // Do nothing by default

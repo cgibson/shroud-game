@@ -1,12 +1,13 @@
+import {Player} from "./player";
+
 export abstract class AbstractGame {
-
-
     abstract preload(): void;
     abstract create(): void;
     abstract render(): void;
     abstract update(): void;
 
     abstract getMap(): Phaser.Tilemap;
+    abstract getPlayer(): Player;
     abstract getGame(): Phaser.Game;
 
     private static singleton_: AbstractGame = null;
