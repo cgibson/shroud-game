@@ -13,7 +13,11 @@ export enum DirectionEnum {
 // Monster
 ////////////////////////////////////////////////////////////////////////////////
 export class Monster extends Actor {
+
+    ghoul_loop: Phaser.Sound;
+
     constructor(position: Vector2D, asset_name: string) {
+        
         super(position, asset_name, ActorType.MONSTER)
     }
     update() {}
@@ -44,6 +48,8 @@ export class Ghoul extends Monster {
         this.sprite.animations.add('right', [4,5,6,7], 4, true);
         this.sprite.animations.add('up', [8,9,10,11], 4, true);
         this.sprite.animations.add('left', [12,13,14,15], 4, true);
+        this.ghoul_loop = this.game.add.audio("ghoul_loop");
+        this.ghoul_loop.loopFull();
     }
 
     previous_direction = DirectionEnum.DOWN;

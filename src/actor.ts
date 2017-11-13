@@ -45,6 +45,7 @@ export class Actor {
     max_health: number;
     speed: number;
 
+
     tick() {
         // Do nothing by default
     }

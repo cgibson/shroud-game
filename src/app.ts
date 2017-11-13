@@ -53,6 +53,7 @@ class SimpleGame extends AbstractGame {
     music_01: Phaser.Sound;
     ambiance_01: Phaser.Sound;
 
+
     preload() {
         // Load the level. Down the line we'll want to replace this with a procedural step
         this.game.load.tilemap('test_level', 'assets/levels/first_room.json', null, Phaser.Tilemap.TILED_JSON);
@@ -74,6 +75,10 @@ class SimpleGame extends AbstractGame {
         this.game.load.audio('ambiance_01', 'assets/audio/ambiance_01.wav');
         this.game.load.audio('music_01', 'assets/audio/music_01.wav');
 
+        // SFX
+        this.game.load.audio('player_footstep_01', 'assets/audio/player_footstep_01.wav');
+        this.game.load.audio('ghoul_loop', 'assets/audio/ghoul_loop.wav');
+        this.game.load.audio('pickup', 'assets/audio/pickup.wav');
 
     }
 
@@ -132,6 +137,7 @@ class SimpleGame extends AbstractGame {
             this.music_01.play();
             this.ambiance_01.loopFull();
         }, this);
+        
     }
 
     update() {
