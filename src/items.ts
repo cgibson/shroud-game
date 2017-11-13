@@ -16,6 +16,7 @@ export class Item extends Actor {
         super(position, asset_name, ActorType.ITEM);
         this.collidable = false;
         this.pickup = this.game.add.audio("pickup");
+        this.occludes = false;
     }
 
     // Called when the item is picked up
