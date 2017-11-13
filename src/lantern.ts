@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 export class Lantern {
 
-    constructor(amount: number = 100, loss_per_tick: number = 1.5) {
+    constructor(amount: number = 100, loss_per_tick: number = 1) {
         this.fuel = amount;
         this.loss_per_tick = loss_per_tick;
     }

@@ -109,7 +109,11 @@ class SimpleGame extends AbstractGame {
         this.monsters.push(new Ghoul(new Phaser.Point(10, 10)));
 
         // Create a battery
-        var battery = new Battery(new Vector2D(4, 4));
+        new Battery(new Vector2D(4, 4));
+        new Battery(new Vector2D(1, 15));
+        new Battery(new Vector2D(2, 21));
+        new Battery(new Vector2D(20, 12));
+        new Battery(new Vector2D(18, 4));
 
         this.light_cache = new LightCache();
 
@@ -179,7 +183,7 @@ class SimpleGame extends AbstractGame {
 
     render() {
         // Render debug camera information to the screen
-        this.game.debug.cameraInfo(this.game.camera, 32, 500);
+        // this.game.debug.cameraInfo(this.game.camera, 32, 500);
     }
 
     getMap() {
