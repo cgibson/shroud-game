@@ -77,7 +77,7 @@ class SimpleGame extends AbstractGame {
 
         // Music
         this.game.load.audio('ambiance_01', 'assets/audio/ambiance_01.wav');
-        this.game.load.audio('music_01', 'assets/audio/music_01.wav');
+        this.game.load.audio('music_01', 'assets/audio/music_01.mp3');
 
         // SFX
         this.game.load.audio('player_footstep_01', 'assets/audio/player_footstep_01.wav');
@@ -156,7 +156,8 @@ class SimpleGame extends AbstractGame {
         this.music_01 = this.game.add.audio('music_01');
         this.ambiance_01 = this.game.add.audio('ambiance_01');
         this.game.sound.setDecodedCallback([this.music_01, this.ambiance_01], () => {
-            this.music_01.play();
+            this.playMusic(0);
+            //this.music_01.play();
             this.ambiance_01.loopFull();
         }, this);
         
@@ -188,6 +189,12 @@ class SimpleGame extends AbstractGame {
 
     getGame() {
         return this.game;
+    }
+
+    playMusic(delay: number) {
+        setTimeout(this.music_01.play(), delay);
+        delay = Math.floor(Math.random() * 60000) + 120000;
+        this.playMusic(delay);
     }
 }
 
