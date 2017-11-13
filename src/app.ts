@@ -67,6 +67,7 @@ class SimpleGame extends AbstractGame {
 
         // Entities
         this.game.load.spritesheet('ghoul', 'assets/sprites/ghoul.png', 48, 48, 16);
+        this.game.load.spritesheet('hp', 'assets/sprites/health_bar.png', 48, 48, 5);
         this.game.load.image('hero_down', 'assets/images/hero_down.png');
         this.game.load.image('hero_left', 'assets/images/hero_left.png');
         this.game.load.image('hero_right', 'assets/images/hero_right.png');
@@ -104,10 +105,15 @@ class SimpleGame extends AbstractGame {
         // Create a test monster
         this.monsters = new Array<Monster>();
         this.monsters.push(new Ghoul(new Phaser.Point(2, 3)));
-        var ghoul_monster = this.monsters[0];
+        this.monsters.push(new Ghoul(new Phaser.Point(20, 3)));
+        this.monsters.push(new Ghoul(new Phaser.Point(10, 10)));
 
         // Create a battery
-        var battery = new Battery(new Vector2D(4, 4));
+        new Battery(new Vector2D(4, 4));
+        new Battery(new Vector2D(1, 15));
+        new Battery(new Vector2D(2, 21));
+        new Battery(new Vector2D(20, 12));
+        new Battery(new Vector2D(18, 4));
 
         this.light_cache = new LightCache();
 
@@ -146,6 +152,8 @@ class SimpleGame extends AbstractGame {
 
         this.player = new Player( new Vector2D(1,1));
 
+        this.game.camera.follow(this.player.sprite);
+
         // Another horrible hack to make the player accessible via singleton
         SimpleGame.player_singleton_ = this.player;
 
@@ -176,7 +184,7 @@ class SimpleGame extends AbstractGame {
 
     render() {
         // Render debug camera information to the screen
-        this.game.debug.cameraInfo(this.game.camera, 32, 500);
+        // this.game.debug.cameraInfo(this.game.camera, 32, 500);
     }
 
     getMap() {

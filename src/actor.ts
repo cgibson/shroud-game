@@ -143,6 +143,7 @@ export abstract class Actor {
         this.tile_coord.add(x, y);
         this.sprite.position.x = this.tile_coord.x * 48;
         this.sprite.position.y = this.tile_coord.y * 48;
+        
         return true;
     }
 

@@ -9,6 +9,11 @@ export enum DirectionEnum {
     LEFT,
 };
 
+export enum DirectionClock {
+    CLOCKWISE,
+    COUNTERCLOCKWISE,
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Monster
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +59,9 @@ export class Ghoul extends Monster {
 
     previous_direction = DirectionEnum.DOWN;
     direction_count = 0;
+    step_count = 0;
     scale = true;
+    turn = DirectionClock.COUNTERCLOCKWISE;
 
     down(): boolean {
         this.sprite.animations.play('down');
@@ -102,6 +109,23 @@ export class Ghoul extends Monster {
                 direction = this.next(direction);
             collision_count++;
         }
+        if (direction == this.previous_direction && this.step_count > 3) {
+            direction = this.next(direction);
+            if (this.collision_check_vector(this.direction_to_vector(direction)) == true) {
+                if (this.collision_check_vector(this.direction_to_vector(this.back(direction))) == true) {
+                    direction = this.previous_direction;
+                }
+                else {
+                    direction = this.back(direction)
+                    this.step_count = 0;
+                }
+            }
+            this.step_count = 0;
+        }
+        this.step_count++;
+        if (Math.random() < 0.5) {
+            this.turn = this.clockflip(this.turn);
+        }
         return this.go(direction);
     }
    
@@ -110,15 +134,29 @@ export class Ghoul extends Monster {
     }
 
     next(direction: DirectionEnum): DirectionEnum {
-        switch(direction) {
-            case DirectionEnum.DOWN:
-                return DirectionEnum.RIGHT;
-            case DirectionEnum.RIGHT:
-                return DirectionEnum.UP;
-            case DirectionEnum.UP:
-                 return DirectionEnum.LEFT;
-            case DirectionEnum.LEFT:
-                 return DirectionEnum.DOWN;
+        if (this.turn == DirectionClock.COUNTERCLOCKWISE) {
+            switch(direction) {
+                case DirectionEnum.DOWN:
+                    return DirectionEnum.RIGHT;
+                case DirectionEnum.RIGHT:
+                    return DirectionEnum.UP;
+                case DirectionEnum.UP:
+                     return DirectionEnum.LEFT;
+                case DirectionEnum.LEFT:
+                     return DirectionEnum.DOWN;
+            }
+        }
+        else if (this.turn == DirectionClock.CLOCKWISE) {
+            switch(direction) {
+                case DirectionEnum.DOWN:
+                    return DirectionEnum.LEFT;
+                case DirectionEnum.RIGHT:
+                    return DirectionEnum.DOWN;
+                case DirectionEnum.UP:
+                     return DirectionEnum.RIGHT;
+                case DirectionEnum.LEFT:
+                     return DirectionEnum.UP;
+            }
         }
     }
     
@@ -133,6 +171,12 @@ export class Ghoul extends Monster {
             case DirectionEnum.LEFT:
                  return DirectionEnum.RIGHT;
         }
+    }
+    
+    clockflip(dir: DirectionClock) {
+        if (dir == DirectionClock.CLOCKWISE)
+            return DirectionClock.COUNTERCLOCKWISE
+        return DirectionClock.CLOCKWISE
     }
     
     direction_to_vector(direction: DirectionEnum): Vector2D {
