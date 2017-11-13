@@ -62,6 +62,7 @@ class SimpleGame extends AbstractGame {
 
         // Entities
         this.game.load.spritesheet('ghoul', 'assets/sprites/ghoul.png', 48, 48, 16);
+        this.game.load.spritesheet('hp', 'assets/sprites/health_bar.png', 48, 48, 5);
         this.game.load.image('hero_down', 'assets/images/hero_down.png');
         this.game.load.image('hero_left', 'assets/images/hero_left.png');
         this.game.load.image('hero_right', 'assets/images/hero_right.png');
