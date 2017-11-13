@@ -21,20 +21,32 @@ export class Player extends Actor {
 
     lantern: Lantern;
 
-    down() {
-       super.down();
+    down(): boolean {
+       if (!super.down()) {
+           return false;
+       }
        this.player_footstep.play();
+       return true;
     }
     up() {
-        super.up();
+       if (!super.up()) {
+           return false;
+       }
         this.player_footstep.play();
+        return true;
      }
      left() {
-        super.left();
+       if (!super.left()) {
+           return false;
+       }
         this.player_footstep.play();
+        return true;
      }
      right() {
-        super.right();
+       if (!super.right()) {
+           return false;
+       }
         this.player_footstep.play();
+        return true;
      }
 }
