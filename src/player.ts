@@ -17,14 +17,26 @@ export class Player extends Actor {
 
         this.lantern = new Lantern();
         this.player_footstep = this.game.add.audio("player_footstep_01");
+        this.expended_since_tick = false;
     }
 
     lantern: Lantern;
+    expended_since_tick: boolean;
+
+    tick() {
+        if (this.expended_since_tick) {
+            this.expended_since_tick = false;
+            return;
+        }
+        this.lantern.expendFuel();
+    }
 
     down(): boolean {
        if (!super.down()) {
            return false;
        }
+       this.expended_since_tick = true;
+       this.lantern.expendFuel();
        this.player_footstep.play();
        return true;
     }
@@ -32,13 +44,17 @@ export class Player extends Actor {
        if (!super.up()) {
            return false;
        }
-        this.player_footstep.play();
-        return true;
+       this.expended_since_tick = true;
+       this.lantern.expendFuel();
+       this.player_footstep.play();
+       return true;
      }
      left() {
        if (!super.left()) {
            return false;
        }
+        this.expended_since_tick = true;
+        this.lantern.expendFuel();
         this.player_footstep.play();
         return true;
      }
@@ -46,6 +62,8 @@ export class Player extends Actor {
        if (!super.right()) {
            return false;
        }
+        this.expended_since_tick = true;
+        this.lantern.expendFuel();
         this.player_footstep.play();
         return true;
      }

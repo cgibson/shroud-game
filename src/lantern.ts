@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 export class Lantern {
 
-    constructor(amount: number = 100, loss_per_tick: number = 5) {
+    constructor(amount: number = 100, loss_per_tick: number = 1.5) {
         this.fuel = amount;
         this.loss_per_tick = loss_per_tick;
     }
@@ -15,7 +15,7 @@ export class Lantern {
     // How much fuel is expended per tick
     loss_per_tick : number;
 
-    addFuel(added_fuel: number = 25) {
+    addFuel(added_fuel: number = 75) {
         this.fuel += added_fuel;
         console.log("Fuel now at " + this.fuel);
 
@@ -24,5 +24,6 @@ export class Lantern {
     // This occurs once per tick, the amount expended is always the same
     expendFuel() {
         this.fuel = Math.max(this.fuel - this.loss_per_tick, 0.0);
+        console.log("Fuel now at " + this.fuel);
     }
 }
