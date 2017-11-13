@@ -179,10 +179,10 @@ export class LightCache {
 
                 // Update visibility of the tile (TODO: Replace with varying levels of dithering)
                 if (!testPathOccluded(player.tile_coord, new Vector2D(new_x, new_y))) {
-                    const distance = Math.sqrt(Math.pow(new_x - player.tile_coord.x, 2),
+                    const distance = Math.sqrt(Math.pow(new_x - player.tile_coord.x, 2) +
                                                Math.pow(new_y - player.tile_coord.y, 2));
                     // TODO: Adjust based on player's fuel
-                    const falloff_dist = 10;
+                    const falloff_dist = player.lantern.fuel / 10.0;
                     const loss = 1.0 - Math.min(distance / falloff_dist, 1.0);
                     tile.light_amount += 100 * loss;
                 }
