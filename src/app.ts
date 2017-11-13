@@ -146,6 +146,8 @@ class SimpleGame extends AbstractGame {
 
         this.player = new Player( new Vector2D(1,1));
 
+        this.game.camera.follow(this.player.sprite);
+
         // Another horrible hack to make the player accessible via singleton
         SimpleGame.player_singleton_ = this.player;
 
